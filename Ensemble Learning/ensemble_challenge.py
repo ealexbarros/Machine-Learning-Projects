@@ -32,6 +32,13 @@ from sklearn.preprocessing import LabelEncoder
 import time as time
 from sklearn.metrics import make_scorer
 from sklearn.svm import LinearSVC
+import pandas as pd
+import keras
+from keras.models import Sequential
+from keras.layers import Dense, Dropout
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.model_selection import cross_val_score
+from keras.utils import np_utils
 
 # Step1: Create data set
 
@@ -110,9 +117,6 @@ metrics.append(['Random Forest',(end-start),media, desvio,acc,f1,recall,precisio
 
 
 
-
-
-
 # Step 4: Fit a AdaBoost model,
 clf = AdaBoostClassifier(n_estimators=100)
 resultados = cross_val_score(estimator = clf,
@@ -157,6 +161,7 @@ roc=roc_auc_score(y_test, y_pred,multi_class='ovr')
 metrics.append(['GradientBoosting',(end-start),media, desvio,acc,f1,recall,precision,roc])
 
 
+
 #SVM
 # Step 6: Fit a Linear SVM
 clf = LinearSVC(random_state=0, tol=1e-5, dual=False,)
@@ -181,4 +186,36 @@ metrics.append(['SVM',(end-start),media, desvio,acc,f1,recall,precision,roc])
 
 
 # Step 7: Fit a Neural Network
+from sklearn.preprocessing import LabelEncoder
+labelencoder = LabelEncoder()
+classe_encoder = labelencoder.fit_transform(y)
+classe_dummy = np_utils.to_categorical(classe_encoder)
+previsores_treinamento, previsores_teste, classe_treinamento, classe_teste = train_test_split(X, classe_dummy, test_size=0.3)
+
+classificador = Sequential()
+classificador.add(Dense(units = 12, activation = 'relu', input_dim = 9))
+classificador.add(Dense(units = 12, activation = 'relu'))
+classificador.add(Dense(units = 12, activation = 'relu'))
+classificador.add(Dense(units = 12, activation = 'relu'))
+classificador.add(Dropout(0.05))
+classificador.add(Dense(units = 12, activation = 'relu'))
+classificador.add(Dense(units = 12, activation = 'relu'))
+classificador.add(Dense(units = 12, activation = 'relu'))
+classificador.add(Dense(units = 14, activation = 'softmax'))
+classificador.compile(optimizer = 'adam', loss = 'categorical_crossentropy',
+                      metrics = ['categorical_accuracy'])
+classificador.fit(previsores_treinamento, classe_treinamento, batch_size = 10,
+                  epochs = 1000)
+
+resultado = classificador.evaluate(previsores_teste, classe_teste)
+previsoes = classificador.predict(previsores_teste)
+previsoes = (previsoes > 0.5)
+import numpy as np
+classe_teste2 = [np.argmax(t) for t in classe_teste]
+previsoes2 = [np.argmax(t) for t in previsoes]
+
+from sklearn.metrics import confusion_matrix
+matriz = confusion_matrix(previsoes2, classe_teste2)
+
+
 
