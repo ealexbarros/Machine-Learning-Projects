@@ -64,11 +64,11 @@ base=base.fillna(value=valores)
 #base.loc[pd.isna(base['mean_rr_interval'])]
 #base_n['person'].value_counts()
 base_cleaned['person'].value_counts
+base['person'].value_counts
 
-i=base.loc[base.person=='tr14-0291']
 base=base_cleaned
-X = base.iloc[:,0:15].values #ao colocar 1:2, o iloc retorna somente a coluna 1
-y = base.iloc[:,15:16].values #ao colocar 1:2, o iloc retorna somente a coluna 1
+X = base_cleaned.iloc[:,0:15].values #ao colocar 1:2, o iloc retorna somente a coluna 1
+y = base_cleaned.iloc[:,15:16].values #ao colocar 1:2, o iloc retorna somente a coluna 1
 labelencoder = LabelEncoder()
 classe_encoder = labelencoder.fit_transform(y)
 #base['enconder']=classe_encoder
